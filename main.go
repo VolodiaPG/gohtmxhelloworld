@@ -30,13 +30,15 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Form.Has("global") {
 		global.Count++
 	}
+	userCount := sessionManager.GetInt(r.Context(), "count")
 	if r.Form.Has("user") {
-		currentCount := sessionManager.GetInt(r.Context(), "count")
-		sessionManager.Put(r.Context(), "count", currentCount+1)
+		userCount += 1
+		sessionManager.Put(r.Context(), "count", userCount)
 	}
 
 	// Display the form.
-	getHandler(w, r)
+	component := counts(global.Count, userCount)
+	component.Render(r.Context(), w)
 }
 
 func main() {

@@ -4,8 +4,6 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.gomod2nix.url = "github:nix-community/gomod2nix";
-  inputs.alejandra.url = "github:kamadorueda/alejandra/3.0.0";
-  inputs.alejandra.inputs.nixpkgs.follows = "nixpkgs";
   inputs.templ.url = "github:a-h/templ";
   inputs.templ.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -29,20 +27,19 @@
         };
         packages.goEnv = pkgs.mkGoEnv {pwd = ./.;};
         devShells.default = pkgs.mkShell {
-          packages = with pkgs;
-            [
-              git
-              gomod2nix
-              gopls
-              gotools
-              go-tools
-              inputs.templ.packages.${system}.templ
-              outputs.packages.${system}.goEnv
-            ];
+          packages = with pkgs; [
+            git
+            gnumake
+            gomod2nix
+            gopls
+            gotools
+            just
+            go-tools
+            inputs.templ.packages.${system}.templ
+            outputs.packages.${system}.goEnv
+          ];
         };
+        formatter = pkgs.alejandra;
       }))
-      # Pass normal flake as `inputs` arg
-      {
-        formatter = alejandra.defaultPackage;
-      };
+      inputs;
 }
