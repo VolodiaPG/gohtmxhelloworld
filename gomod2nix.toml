@@ -1,0 +1,9 @@
+schema = 3
+
+[mod]
+  [mod."github.com/a-h/templ"]
+    version = "v0.2.315"
+    hash = "sha256-IQ5RvktC0HPumIejDPBHN/PkLTeKAdEUevFjw4sPPDw="
+  [mod."github.com/alexedwards/scs/v2"]
+    version = "v2.5.1"
+    hash = "sha256-XQACPazW1QfFaL3knJ80TMiz23StokPXfqaMSj6v50M="
