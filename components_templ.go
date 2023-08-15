@@ -24,7 +24,7 @@ func counts(global int, user int) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<form id=\"countsForm\" action=\"/\" method=\"POST\" hx-post=\"/\" hx-select=\"#countsForm\" hx-swap=\"outerHTML\"><div class=\"columns\"><div class=\"column has-text-centered is-primary\"><h1 class=\"title is-size-1 has-text-centered\">")
+		_, err = templBuffer.WriteString("<form id=\"countsForm\" hx-post=\"/\"><div class=\"columns\"><div class=\"column has-text-centered is-primary\"><h1 class=\"title is-size-1 has-text-centered\">")
 		if err != nil {
 			return err
 		}
@@ -42,7 +42,7 @@ func counts(global int, user int) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</p><div><button class=\"button is-primary\" type=\"submit\" name=\"global\" value=\"global\">")
+		_, err = templBuffer.WriteString("</p><div><button class=\"button is-primary\" type=\"submit\" name=\"global\">")
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func counts(global int, user int) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</p><div><button class=\"button is-secondary\" type=\"submit\" name=\"user\" value=\"user\">")
+		_, err = templBuffer.WriteString("</p><div><button class=\"button is-secondary\" type=\"submit\" name=\"user\">")
 		if err != nil {
 			return err
 		}
@@ -89,7 +89,7 @@ func counts(global int, user int) templ.Component {
 	})
 }
 
-func page(global int, user int) templ.Component {
+func summary(global int, user int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -102,12 +102,55 @@ func page(global int, user int) templ.Component {
 			var_8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div hx-get=\"/summary\" hx-trigger=\"countsRefreshed from:body\">")
+		if err != nil {
+			return err
+		}
+		var_9 := `There has been `
+		_, err = templBuffer.WriteString(var_9)
+		if err != nil {
+			return err
+		}
+		var var_10 string = strconv.Itoa(global + user)
+		_, err = templBuffer.WriteString(templ.EscapeString(var_10))
+		if err != nil {
+			return err
+		}
+		var_11 := `&nbsp;clicks.`
+		_, err = templBuffer.WriteString(var_11)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func page(global int, user int) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_12 := templ.GetChildren(ctx)
+		if var_12 == nil {
+			var_12 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		_, err = templBuffer.WriteString("<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>")
 		if err != nil {
 			return err
 		}
-		var_9 := `Counts`
-		_, err = templBuffer.WriteString(var_9)
+		var_13 := `Counts`
+		_, err = templBuffer.WriteString(var_13)
 		if err != nil {
 			return err
 		}
@@ -115,8 +158,8 @@ func page(global int, user int) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_10 := ``
-		_, err = templBuffer.WriteString(var_10)
+		var_14 := ``
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
@@ -124,8 +167,8 @@ func page(global int, user int) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_11 := `Counts`
-		_, err = templBuffer.WriteString(var_11)
+		var_15 := `Counts`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -134,6 +177,14 @@ func page(global int, user int) templ.Component {
 			return err
 		}
 		err = counts(global, user).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div><div class=\"column is-half\">")
+		if err != nil {
+			return err
+		}
+		err = summary(global, user).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}

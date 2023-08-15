@@ -6,6 +6,8 @@
   inputs.gomod2nix.url = "github:nix-community/gomod2nix";
   inputs.templ.url = "github:a-h/templ";
   inputs.templ.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+  inputs.pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = inputs:
     with inputs; let
@@ -26,7 +28,19 @@
           modules = ./gomod2nix.toml;
         };
         packages.goEnv = pkgs.mkGoEnv {pwd = ./.;};
+        checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              alejandra.enable = true;
+              govet.enable = true;
+              revive.enable = true;
+              # staticcheck.enable = true;
+            };
+          };
+        };
         devShells.default = pkgs.mkShell {
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
           packages = with pkgs; [
             git
             gnumake

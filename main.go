@@ -1,3 +1,4 @@
+// Main package of a simple test server that plays with templ and HTMX
 package main
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 )
 
+// GlobalState shares to the whole application state
 type GlobalState struct {
 	Count int
 }
@@ -22,6 +24,12 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	component.Render(r.Context(), w)
 }
 
+func getSummary(w http.ResponseWriter, r *http.Request) {
+	userCount := sessionManager.GetInt(r.Context(), "count")
+	component := summary(global.Count, userCount)
+	component.Render(r.Context(), w)
+}
+
 func postHandler(w http.ResponseWriter, r *http.Request) {
 	// Update state.
 	r.ParseForm()
@@ -32,12 +40,13 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userCount := sessionManager.GetInt(r.Context(), "count")
 	if r.Form.Has("user") {
-		userCount += 1
+		userCount++
 		sessionManager.Put(r.Context(), "count", userCount)
 	}
 
 	// Display the form.
 	component := counts(global.Count, userCount)
+	w.Header().Add("HX-Trigger", "countsRefreshed")
 	component.Render(r.Context(), w)
 }
 
@@ -55,6 +64,10 @@ func main() {
 			return
 		}
 		getHandler(w, r)
+	})
+	// Handle POST and GET requests.
+	mux.HandleFunc("/summary", func(w http.ResponseWriter, r *http.Request) {
+		getSummary(w, r)
 	})
 
 	// Include the static content.
