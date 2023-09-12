@@ -1,20 +1,21 @@
 {
   description = "A basic gomod2nix flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.gomod2nix.url = "github:nix-community/gomod2nix";
-  inputs.templ.url = "github:a-h/templ";
-  inputs.templ.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
-  inputs.pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    gomod2nix.url = "github:nix-community/gomod2nix";
+    templ.url = "github:a-h/templ";
+    templ.inputs.nixpkgs.follows = "nixpkgs";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+  };
 
   outputs = inputs:
     with inputs; let
       inherit (self) outputs;
     in
-      nixpkgs.lib.recursiveUpdate
-      (flake-utils.lib.eachDefaultSystem (system: let
+      flake-utils.lib.eachDefaultSystem (system: let
         pkgs = import nixpkgs {
           inherit system;
           overlays = [gomod2nix.overlays.default];
@@ -54,6 +55,5 @@
           ];
         };
         formatter = pkgs.alejandra;
-      }))
-      inputs;
+      });
 }
